@@ -9,4 +9,4 @@ def test_add_zero():
     assert 0 + 0 == 0
 
 def test_add_positive_and_negative():
-    assert 5 - 3 == 2
+    assert 5 - 2 == 2
