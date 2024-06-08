@@ -39,5 +39,5 @@ jobs:
       - uses: actions/checkout@v2
       - name: Deploy to production!!
         run: |
-          ssh -i ${{ secrets.SSH_KEY }} toktarsultan@localhost -p 8016 "docker pull toktarsultan/shuup:latest && docker-compose up -d"
+          docker run -d -p 8016:8000 toktarsultan/shuup:latest
 
