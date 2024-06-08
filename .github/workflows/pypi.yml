@@ -37,7 +37,7 @@ jobs:
     if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v2
-      - name: Deploy to production!
+      - name: Deploy to production!!
         run: |
           ssh -i ${{ secrets.SSH_KEY }} toktarsultan@localhost -p 8016 "docker pull toktarsultan/shuup:latest && docker-compose up -d"
 
