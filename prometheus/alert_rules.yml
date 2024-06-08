@@ -1,0 +1,42 @@
+groups:
+  - name: HighMemoryUsage
+    rules:
+      - alert: HighMemoryUsage
+        expr: node_memory_Active_bytes / node_memory_MemTotal_bytes * 100 > 80
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Instance {{ $labels.instance }} is using too much memory"
+          description: "{{ $labels.instance }} of job {{ $labels.job }} is using more than 80% of memory for more than 5 minutes."
+
+  - name: HighResponseTime
+    rules:
+      - alert: HighResponseTime
+        expr: histogram_quantile(0.95, rate(http_server_requests_seconds_bucket{job="shuup"}[5m])) > 0.5
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High response time detected"
+          description: "The 95th percentile response time is above 500ms for more than 5 minutes."
+
+  - name: UptimeMonitoring
+    rules:
+      - alert: ApplicationUptime
+        expr: (1 - (sum(rate(django_http_requests_total_by_method_total{job="shuup", status=~"5.."}[1m])) by (job) / sum(rate(http_server_requests_total{job="shuup"}[1m])) by (job))) * 100 < 99.5
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Application uptime is below the threshold"
+          description: "The application {{ $labels.job }} has an uptime below 99.5% in the last minute."
+
+      - alert: HttpErrors
+        expr: rate(http_server_requests_total{job="shuup", status=~"5..|404"}[5m]) > 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "HTTP 500 or 404 errors detected"
+          description: "The application {{ $labels.job }} has encountered HTTP 500 or 404 errors in the last 5 minutes."

@@ -1,0 +1,44 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - cicd
+  pull_request:
+    branches:
+      - cicd
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    services:
+      shuup:
+        image: toktarsultan/shuup:latest
+        ports:
+          - 8016:8000
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest
+      - name: Run tests
+        run: pytest tests/
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v2
+      - name: Deploy to production
+        run: |
+          ssh -i 4DwOtAP7j9qhsnZwvaY+b4uFER2qhaKzfmY6ibuHr1M toktarsultan@server "docker pull toktarsultan/shuup:latest && docker-compose up -d"
+
